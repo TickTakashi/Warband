@@ -12,13 +12,6 @@ public class CharacterSelector : MonoBehaviour {
 
   void Start() {
     markers = new List<Transform>();
-
-    // DEBUG CODE
-    Dictionary<Location, int> d = new Dictionary<Location, int>();
-    d[new Location(0, 0)] = 10;
-    d[new Location(0, 1)] = 20;
-    Debug.Log("Location 0, 0 is: " + d[new Location(0, 0)]);
-    Debug.Log("Contains key 0, 0?: " + d.ContainsKey(new Location(0, 0)));
   }
 
 	// Update is called once per frame
