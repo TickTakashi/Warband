@@ -34,4 +34,12 @@ public struct Location {
   public override string ToString() {
     return "(" + x.ToString() + ", " + y.ToString() + ")";
   }
+
+  internal IEnumerable<Location> Range(int range) {
+    for (int i = -range; i <= range; i++) {
+      for (int j = -(range - Mathf.Abs(i)); j <= (range - Mathf.Abs(i)); j++) {
+        yield return new Location(x + i, y + j);
+      }
+    } 
+  }
 }

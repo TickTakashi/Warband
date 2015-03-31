@@ -10,14 +10,22 @@ public class Board : MonoBehaviour {
   private static Dictionary<Location, Tile> board = new Dictionary<Location, Tile>();
   private static Dictionary<Entity, Location> entities = new Dictionary<Entity, Location>();
 
-  public static Vector3 Position(Location l) {
+  public static Vector3 CalculatePosition(Location l) {
     return board[l].transform.position;
   }
 
   public static Location CalculateLocation(Vector3 position) {
     return new Location(position.x / tile_size, position.z / tile_size);
   }
-  
+
+  public static Location GetLocation(Entity e) {
+    return entities[e];
+  }
+
+  public static Tile GetTile(Location l) {
+    return board.ContainsKey(l) ? board[l] : null;
+  }
+
   public static void InitTile(Tile t) {
     Location l = CalculateLocation(t.transform.position);
     if (board.ContainsKey(l))
@@ -47,7 +55,7 @@ public class Board : MonoBehaviour {
   }
 
   public static Dictionary<Location, Path> WarriorMoves(Warrior warrior) {
-    return Routes(entities[warrior], warrior.speed);
+    return Routes(entities[warrior], warrior.GetSpeed());
   }
 
 
@@ -112,11 +120,7 @@ public class Board : MonoBehaviour {
   }
 
   public static int LocationCost(Location l) {
-    int ncost = 0;
-    if (board.ContainsKey(l)) {
-      ncost = board[l].Cost();
-    }
-    return ncost;
+    return board.ContainsKey(l) ? board[l].Cost() : 0;
   }
 
   public static string PrintPaths(List<Path> paths) {

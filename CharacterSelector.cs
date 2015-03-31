@@ -17,15 +17,19 @@ public class CharacterSelector : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
     if (Input.GetButtonDown("Fire1")) {
-      Debug.Log("Casting Ray!");
       Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
       Debug.DrawLine(r.origin, r.origin + 10f * r.direction, Color.cyan);
-      RaycastHit hit_info;
-      if (Physics.Raycast(r, out hit_info, entity_layer.value)) {
-        Warrior s = hit_info.collider.GetComponent<Warrior>();
+      RaycastHit hit;
+      if (Physics.Raycast(r, out hit, Mathf.Infinity, entity_layer)) {
+        Warrior s = hit.collider.GetComponent<Warrior>();
         if (s != null) {
           selected = s;
           UpdateSelection();
+        }
+
+        if (hit.collider.gameObject.tag == "Selector") {
+          MoveUnit(selected, Board.CalculateLocation(hit.collider.transform.position));
+          ClearSelection();
         }
       } else {
         ClearSelection();
@@ -33,13 +37,18 @@ public class CharacterSelector : MonoBehaviour {
     }
 	}
 
+  void MoveUnit(Warrior selected, Location destination) {
+    // TODO: Check if its our turn.
+    // TODO: Check if we are allowed to move right now.
+    selected.FollowPath(paths[destination]);
+  }
+
   void UpdateSelection() {
     ClearSelection();
     paths = Board.WarriorMoves(selected);
-    Debug.Log("There are " + paths.Keys.Count + " destinations.");
     foreach (Location l in paths.Keys) {
       Transform marker = Instantiate(marker_prefab) as Transform;
-      marker.position = Board.Position(l);
+      marker.position = Board.CalculatePosition(l);
       markers.Add(marker);
     }
   }

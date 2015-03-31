@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UEL;
 
-public abstract class Entity : MonoBehaviour {
+public abstract class Entity : UELBehaviour {
   public int health;
   public Player owner;
 
