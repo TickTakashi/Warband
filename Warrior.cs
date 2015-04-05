@@ -16,7 +16,7 @@ public class Warrior : Entity {
     if (active) {
       active = false;
       List<Location> steps = p.path;
-      Board.MoveEntity(this, p.End());
+      Grid.board.MoveEntity(this, p.End());
       StartCoroutine(FollowPathRoutine(steps));
     } else {
       Debug.Log("This unit has already acted!");
@@ -29,7 +29,7 @@ public class Warrior : Entity {
     Animator anim = GetComponent<Animator>();
     anim.SetBool("Running", true);
     for (int i = 0; i < steps.Count; i++) {
-      Vector3 next_pos = Board.CalculatePosition(steps[i]);
+      Vector3 next_pos = Grid.board.CalculatePosition(steps[i]);
       Vector3 cur_pos = trans.position;
       float timer = 0;
       Quaternion target = trans.LookAtRotation(next_pos);
@@ -40,6 +40,7 @@ public class Warrior : Entity {
         timer += Time.deltaTime;
         trans.rotation = Quaternion.RotateTowards(trans.rotation, target,
           Time.deltaTime * rot_speed);
+        NotifyAll();
         yield return null;
       }
     }

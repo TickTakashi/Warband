@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UEL;
 
-public class CameraControl : MonoBehaviour {
+public class CameraControl : UELBehaviour {
 	
   // TODO: Make CameraControl extend a control baseclass so that its easier 
   // to distable and enable control.
@@ -39,6 +40,7 @@ public class CameraControl : MonoBehaviour {
       Mathf.Abs(dir.y) > Screen.height / 2f) {
       dir = Vector2.zero;
     }
+
     float speed_scale = dir.magnitude / Screen.height;
     speed_scale = speed_scale > threshold ? speed_scale : 0f;
 
@@ -53,8 +55,13 @@ public class CameraControl : MonoBehaviour {
     if (zoom_level > zoom_max)
       zoom_level = zoom_max;
 
-    cam.position = Vector3.Lerp(cam.position, 
-      transform.TransformPoint(zoom_zero) + cam.forward * zoom_level *
-      zoom_scale, Time.deltaTime * zoom_speed);
+    Vector3 target_pos = transform.TransformPoint(zoom_zero) + cam.forward *
+      zoom_level * zoom_scale;
+    float delta = Vector3.Distance(target_pos, cam.position);
+    cam.position = Vector3.Lerp(cam.position, target_pos, Time.deltaTime * zoom_speed);
+
+    if (speed_scale > threshold || delta > Warrior.EPSILLON) {
+      NotifyAll();
+    }
   }
 }

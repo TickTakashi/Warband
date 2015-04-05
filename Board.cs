@@ -2,31 +2,47 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using UEL;
 
-public class Board : MonoBehaviour {
+public class Board : UELBehaviour {
 
-  private static int tile_size = 2;
-  private static Player[] players;
-  private static Dictionary<Location, Tile> board = new Dictionary<Location, Tile>();
-  private static Dictionary<Entity, Location> entities = new Dictionary<Entity, Location>();
+  public int tile_size = 2;
 
-  public static Vector3 CalculatePosition(Location l) {
+  private Dictionary<Location, Tile> board = new Dictionary<Location, Tile>();
+
+  public Dictionary<Warrior, Location> warriors = new Dictionary<Warrior,Location>();
+  public Dictionary<Totem, Location> totems = new Dictionary<Totem,Location>();
+
+
+  public Vector3 CalculatePosition(Location l) {
     return board[l].transform.position;
   }
 
-  public static Location CalculateLocation(Vector3 position) {
+  public Location CalculateLocation(Vector3 position) {
     return new Location(position.x / tile_size, position.z / tile_size);
   }
 
-  public static Location GetLocation(Entity e) {
-    return entities[e];
+  public Location GetLocation(Entity e) {
+    Warrior w = (Warrior)e;
+    if (w != null)
+      return GetLocation(w);
+    else
+      return GetLocation((Totem)e);
   }
 
-  public static Tile GetTile(Location l) {
+  public Location GetLocation(Warrior w) {
+    return warriors[w];
+  }
+
+  public Location GetLocation(Totem t) {
+    return totems[t];
+  }
+
+  public Tile GetTile(Location l) {
     return board.ContainsKey(l) ? board[l] : null;
   }
 
-  public static void InitTile(Tile t) {
+  public void InitTile(Tile t) {
     Location l = CalculateLocation(t.transform.position);
     if (board.ContainsKey(l))
       throw new UnityException("Board - InitTile - Tile Initialized Twice!");
@@ -34,32 +50,43 @@ public class Board : MonoBehaviour {
     board[l] = t;
   }
 
-  public static void InitEntity(Entity e) {
+  public void InitEntity(Entity e) {
     Location l = CalculateLocation(e.transform.position);
-    if (entities.ContainsKey(e))
+    Warrior w = e as Warrior;
+    Totem t = e as Totem;
+
+    if (w != null && warriors.ContainsKey(w) || t != null && totems.ContainsKey(t))
       throw new UnityException("Board - InitEntity - Entity Initialized Twice!");
-    entities[e] = l;
+
+    if (t != null)
+      totems[t] = l;
+    else
+      warriors[w] = l;
+
     if (!board.ContainsKey(l))
       throw new UnityException("Board - InitEntity - No Tile To Stand On!");
     board[l].occupant = e;
+    NotifyAll();
   }
 
-  public static void MoveEntity(Entity e, Location l) {
-    board[entities[e]].occupant = null;
-    entities.Remove(e);
+  public void MoveEntity(Warrior w, Location l) {
+    board[warriors[w]].occupant = null;
+    warriors.Remove(w);
     if (board[l].occupant != null) {
       throw new UnityException("Board - MoveEntity - Destination Not Empty!");
     }
-    board[l].occupant = e;
-    entities[e] = l;
-  }
-
-  public static Dictionary<Location, Path> WarriorMoves(Warrior warrior) {
-    return Routes(entities[warrior], warrior.GetSpeed());
+    board[l].occupant = w;
+    warriors[w] = l;
+    NotifyAll();
   }
 
 
-  static string PrintBoard() {
+  public Dictionary<Location, Path> WarriorMoves(Warrior warrior) {
+    return Routes(warrior.location, warrior.GetSpeed());
+  }
+
+
+  string PrintBoard() {
     /* Debug board print. */
     string s = "";
     foreach (Location l in board.Keys) {
@@ -67,6 +94,7 @@ public class Board : MonoBehaviour {
     }
     return s;
   }
+  
   // Returns an array of paths for all locations reachable from a in budget.
   // while cheapest path is less than budget:
   //   For each neighbour of cheapest path
@@ -78,7 +106,7 @@ public class Board : MonoBehaviour {
   //         if new cheaper than budget
   //           add current path to list of paths
   //   remove cheapest path from paths
-  public static Dictionary<Location, Path> Routes(Location a, int budget) {
+  public Dictionary<Location, Path> Routes(Location a, int budget) {
     // Hashmap to store destinations and the current best path to them
     Dictionary<Location, Path> dest = new Dictionary<Location, Path>();
     // List of current paths. (Starts with a)
@@ -105,9 +133,8 @@ public class Board : MonoBehaviour {
 
               if (npath.cost < budget) {
                 int index = paths.BinarySearch(npath);
-                if (index < 0) {
+                if (index < 0) 
                   index = ~index;
-                }
                 paths.Insert(index, npath);
               }
             }
@@ -119,17 +146,14 @@ public class Board : MonoBehaviour {
     return dest;
   }
 
-  public static int LocationCost(Location l) {
+  public int LocationCost(Location l) {
     return board.ContainsKey(l) ? board[l].Cost() : 0;
   }
 
-  public static string PrintPaths(List<Path> paths) {
+  public string PrintPaths(List<Path> paths) {
     string s = "";
-    foreach(Path p in paths) {
+    foreach(Path p in paths)
       s += p.End();
-    }
-
     return s;
   }
-
 }

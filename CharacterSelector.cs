@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UEL;
 
-public class CharacterSelector : MonoBehaviour {
+public class CharacterSelector : UELBehaviour {
 
   public LayerMask entity_layer;
   public Warrior selected;
@@ -28,7 +29,7 @@ public class CharacterSelector : MonoBehaviour {
         }
 
         if (hit.collider.gameObject.tag == "Selector") {
-          MoveUnit(selected, Board.CalculateLocation(hit.collider.transform.position));
+          MoveUnit(selected, Grid.board.CalculateLocation(hit.collider.transform.position));
           ClearSelection();
         }
       } else {
@@ -45,12 +46,14 @@ public class CharacterSelector : MonoBehaviour {
 
   void UpdateSelection() {
     ClearSelection();
-    paths = Board.WarriorMoves(selected);
+    paths = Grid.board.WarriorMoves(selected);
     foreach (Location l in paths.Keys) {
       Transform marker = Instantiate(marker_prefab) as Transform;
-      marker.position = Board.CalculatePosition(l);
+      marker.position = Grid.board.CalculatePosition(l);
       markers.Add(marker);
     }
+
+    NotifyAll();
   }
 
   void ClearSelection() {

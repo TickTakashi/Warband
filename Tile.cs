@@ -8,7 +8,7 @@ public class Tile : MonoBehaviour {
   public int terrain_cost = 1;
 
   public virtual void Awake() {
-    Board.InitTile(this);
+    Grid.board.InitTile(this);
   }
 
   public virtual int Cost() {
