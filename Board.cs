@@ -66,7 +66,6 @@ public class Board : UELBehaviour {
     if (!board.ContainsKey(l))
       throw new UnityException("Board - InitEntity - No Tile To Stand On!");
     board[l].occupant = e;
-    NotifyAll();
   }
 
   public void MoveEntity(Warrior w, Location l) {
@@ -77,7 +76,6 @@ public class Board : UELBehaviour {
     }
     board[l].occupant = w;
     warriors[w] = l;
-    NotifyAll();
   }
 
 

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UEL;
+using System;
 
 public class CameraControl : UELBehaviour {
 	
@@ -18,6 +19,9 @@ public class CameraControl : UELBehaviour {
 
   private Transform trans;
   private Vector3 zoom_zero;
+
+
+  public event EventHandler<CameraMovedEventArgs> CameraMovedEvent;
 
   void Awake() {
     trans = transform;
@@ -57,11 +61,17 @@ public class CameraControl : UELBehaviour {
 
     Vector3 target_pos = transform.TransformPoint(zoom_zero) + cam.forward *
       zoom_level * zoom_scale;
-    float delta = Vector3.Distance(target_pos, cam.position);
+    Vector3 delta = target_pos - cam.position;
     cam.position = Vector3.Lerp(cam.position, target_pos, Time.deltaTime * zoom_speed);
 
-    if (speed_scale > threshold || delta > Warrior.EPSILLON) {
-      NotifyAll();
+    if (speed_scale > threshold || delta.magnitude > Warrior.EPSILLON) {
+      CameraMovedEventArgs cmea = new CameraMovedEventArgs();
+      cmea.delta = delta;
+      CameraMovedEvent(this, cmea);
     }
   }
+}
+
+public class CameraMovedEventArgs : EventArgs {
+  public Vector3 delta;
 }

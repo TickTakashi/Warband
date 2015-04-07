@@ -2,11 +2,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using UEL;
+using System;
 
 public class Warrior : Entity {
   public static float EPSILLON = 0.001f;
   public int speed;
   public bool active = true;
+
+  public void Start() {
+    Grid.game.BeginTurnEvent += new EventHandler<BeginTurnEventArgs>(OnTurnBegin);
+  }
+
+  public void OnTurnBegin(object o, BeginTurnEventArgs e) {
+    if (e.player == owner) {
+      this.active = true;
+    }
+  }
 
   public int GetSpeed() {
     return active ? speed : 0;
@@ -40,7 +51,7 @@ public class Warrior : Entity {
         timer += Time.deltaTime;
         trans.rotation = Quaternion.RotateTowards(trans.rotation, target,
           Time.deltaTime * rot_speed);
-        NotifyAll();
+        PositionChange(new PositionChangeEventArgs()); 
         yield return null;
       }
     }
