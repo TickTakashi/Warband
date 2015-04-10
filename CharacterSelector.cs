@@ -5,7 +5,7 @@ using UEL;
 using System;
 
 public class CharacterSelector : MonoBehaviour {
-  public LayerMask entity_layer;
+  /*public LayerMask entity_layer;
   public Warrior selected;
   public Transform marker_prefab;
   private Dictionary<Location, Path> paths;
@@ -27,8 +27,7 @@ public class CharacterSelector : MonoBehaviour {
       if (Physics.Raycast(r, out hit, Mathf.Infinity, entity_layer)) {
         Warrior s = hit.collider.GetComponent<Warrior>();
         if (s != null) {
-          selected = s;
-          UpdateSelection();
+          UpdateSelection(s);
         }
 
         if (hit.collider.gameObject.tag == "Selector") {
@@ -36,8 +35,13 @@ public class CharacterSelector : MonoBehaviour {
           ClearSelection();
         }
       } else {
+        Debug.Log("Didn't hit anything.");
         ClearSelection();
       }
+    }
+
+    if (Input.GetButtonDown("Fire2")) {
+      ClearSelection();
     }
 	}
 
@@ -51,32 +55,49 @@ public class CharacterSelector : MonoBehaviour {
     }
   }
 
-  void UpdateSelection() {
+  void UpdateSelection(Warrior sel) {
     ClearSelection();
-    if (selected.player == Grid.game.Current()) {
-      paths = Grid.board.WarriorMoves(selected);
-      foreach (Location l in paths.Keys) {
-        Transform marker = Instantiate(marker_prefab) as Transform;
-        marker.position = Grid.board.CalculatePosition(l);
-        markers.Add(marker);
-      }
+    this.selected = sel;
+
+    if (sel.player == Grid.game.Current()) {
+      Grid.ui.DisplayUIFor(sel, true);
     }
 
     CharacterSelectedEventArgs csea = new CharacterSelectedEventArgs();
-    csea.character = selected;
+    csea.character = sel;
     CharacterSelectedEvent(this, csea);
   }
 
+  public void DisplayMovement() {
+    ClearSelection();
+    paths = Grid.board.WarriorMoves(selected);
+    foreach (Location l in paths.Keys) {
+      Transform marker = Instantiate(marker_prefab) as Transform;
+      marker.position = Grid.board.CalculatePosition(l);
+      markers.Add(marker);
+    }
+  }
+
+  // TODO: Make the move buttons UI objects and remove this crap.
   void ClearSelection() {
+    Deselect();
     for (int i = markers.Count - 1; i >= 0; i--) {
       Destroy(markers[i].gameObject);
     }
     markers.Clear();
   }
 
+  void Deselect() {
+    if (this.selected != null) {
+      Grid.ui.DisplayUIFor(this.selected, false);
+    }
+
+    this.selected = null;
+  }
+
   public void OnTurnBegin(object o, BeginTurnEventArgs e) {
     ClearSelection();
-  }
+  }*/
 }
 
 public class CharacterSelectedEventArgs : EventArgs {

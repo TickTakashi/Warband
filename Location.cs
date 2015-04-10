@@ -23,12 +23,21 @@ public struct Location {
     yield return new Location(x, y - 1);
   }
 
+  public static int Distance(Location a, Location b) {
+    return Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);
+  }
+
   public static bool operator ==(Location a, Location b) {
     return a.x == b.x && a.y == b.y;
   }
 
   public static bool operator !=(Location a, Location b) {
     return !(a.x == b.x && a.y == b.y); 
+  }
+
+  public static Location operator +(Location a, Location b) {
+    Location added = new Location(a.x + b.x, a.y + b.y);
+    return added;
   }
 
   public override string ToString() {

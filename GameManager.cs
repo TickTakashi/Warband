@@ -2,6 +2,7 @@
 using System.Collections;
 using UEL;
 using System;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour {
   public Player[] players;
@@ -12,15 +13,26 @@ public class GameManager : MonoBehaviour {
   public event EventHandler<BeginTurnEventArgs> BeginTurnEvent;
   public event EventHandler<SpendEventArgs> SpendEvent;
 
+  public static Color[] player_colors = new Color[] {
+    Color.green,
+    Color.red,
+    Color.cyan,
+    Color.yellow,
+    Color.blue
+  };
+
   public void Start() {
-    BeginTurn();
+    StartCoroutine(BeginTurn());
   }
 
-  public void BeginTurn() {
+  public IEnumerator BeginTurn() {
     current_tp = Current().MaxTacticalPoints();
     BeginTurnEventArgs etea = new BeginTurnEventArgs();
     etea.player = current_player;
     BeginTurnEvent(this, etea);
+    yield return StartCoroutine(Current().TakeTurn());
+    current_player = (current_player + 1) % players.Length;
+    yield return StartCoroutine(BeginTurn());
   }
 
   public bool CanSpend(int to_spend) {
@@ -36,11 +48,6 @@ public class GameManager : MonoBehaviour {
 
   public Player Current() {
     return players[current_player];
-  }
-
-  public void EndTurn() {
-    current_player = (current_player + 1) % players.Length;
-    BeginTurn();
   }
 }
 

@@ -16,4 +16,6 @@ public abstract class Player : MonoBehaviour {
     
     return total;
   }
+
+  public abstract IEnumerator TakeTurn();
 }

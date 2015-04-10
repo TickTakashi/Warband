@@ -23,7 +23,11 @@ public abstract class Entity : UELBehaviour {
       Debug.LogWarning("Entity - Awake - max_health less than health!");
       max_health = health;
     }
+
+    Grid.game.BeginTurnEvent += new EventHandler<BeginTurnEventArgs>(OnTurnBegin);
   }
+
+  public abstract void OnTurnBegin(object o, BeginTurnEventArgs e);
 
   public virtual void Damage(int value) {
     if (value > health)
@@ -44,6 +48,7 @@ public abstract class Entity : UELBehaviour {
     PositionChangeEvent(this, e);
   }
 
+
 }
 
 public class HealthChangeEventArgs : EventArgs {
@@ -51,4 +56,5 @@ public class HealthChangeEventArgs : EventArgs {
 }
 
 public class PositionChangeEventArgs : EventArgs {
+  public bool moving = false;
 }

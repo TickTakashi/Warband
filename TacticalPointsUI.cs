@@ -23,6 +23,7 @@ public class TacticalPointsUI : UELBehaviour {
   }
 
   public void SetTPText() {
+    tactical_points.color = GameManager.player_colors[Grid.game.current_player].SetBrightness(0.85f);
     tactical_points.text = "" + Grid.game.current_tp;
   }
 }

@@ -4,7 +4,7 @@ using UEL;
 using System;
 
 public class PortraitCamera : MonoBehaviour {
-
+  /*
   void Start() {
     Grid.selector.CharacterSelectedEvent += new EventHandler<CharacterSelectedEventArgs>(OnCharacterSelected);
   }
@@ -19,4 +19,5 @@ public class PortraitCamera : MonoBehaviour {
     transform.localPosition = Vector3.zero;
     transform.localRotation = Quaternion.identity;
   }
+  */
 }

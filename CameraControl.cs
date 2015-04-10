@@ -20,6 +20,7 @@ public class CameraControl : UELBehaviour {
   private Transform trans;
   private Vector3 zoom_zero;
 
+  private bool moving = false;
 
   public event EventHandler<CameraMovedEventArgs> CameraMovedEvent;
 
@@ -64,14 +65,23 @@ public class CameraControl : UELBehaviour {
     Vector3 delta = target_pos - cam.position;
     cam.position = Vector3.Lerp(cam.position, target_pos, Time.deltaTime * zoom_speed);
 
-    if (speed_scale > threshold || delta.magnitude > Warrior.EPSILLON) {
+    bool in_motion = speed_scale > threshold || delta.magnitude > 0.1f;
+    if (!moving && in_motion) {
+      moving = true;
       CameraMovedEventArgs cmea = new CameraMovedEventArgs();
-      cmea.delta = delta;
+      cmea.moving = moving;
+      CameraMovedEvent(this, cmea);
+    }
+    
+    if (moving && !in_motion) {
+      moving = false;
+      CameraMovedEventArgs cmea = new CameraMovedEventArgs();
+      cmea.moving = moving;
       CameraMovedEvent(this, cmea);
     }
   }
 }
 
 public class CameraMovedEventArgs : EventArgs {
-  public Vector3 delta;
+  public bool moving; 
 }

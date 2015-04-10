@@ -7,7 +7,8 @@ using UEL;
 public class Board : UELBehaviour {
 
   public int tile_size = 2;
-
+  public LayerMask entity_layer;
+  
   private Dictionary<Location, Tile> board = new Dictionary<Location, Tile>();
 
   public Dictionary<Warrior, Location> warriors = new Dictionary<Warrior,Location>();

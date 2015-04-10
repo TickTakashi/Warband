@@ -8,12 +8,9 @@ public class Warrior : Entity {
   public static float EPSILLON = 0.001f;
   public int speed;
   public bool active = true;
+  public Skill[] skills; 
 
-  public void Start() {
-    Grid.game.BeginTurnEvent += new EventHandler<BeginTurnEventArgs>(OnTurnBegin);
-  }
-
-  public void OnTurnBegin(object o, BeginTurnEventArgs e) {
+  public override void OnTurnBegin(object o, BeginTurnEventArgs e) {
     if (e.player == owner) {
       this.active = true;
     }
@@ -36,7 +33,9 @@ public class Warrior : Entity {
 
   public IEnumerator FollowPathRoutine(List<Location> steps) {
     Transform trans = transform;
-
+    PositionChangeEventArgs pcea = new PositionChangeEventArgs();
+    pcea.moving = true;
+    PositionChange(pcea); 
     Animator anim = GetComponent<Animator>();
     anim.SetBool("Running", true);
     for (int i = 0; i < steps.Count; i++) {
@@ -51,11 +50,13 @@ public class Warrior : Entity {
         timer += Time.deltaTime;
         trans.rotation = Quaternion.RotateTowards(trans.rotation, target,
           Time.deltaTime * rot_speed);
-        PositionChange(new PositionChangeEventArgs()); 
         yield return null;
       }
     }
     anim.SetBool("Running", false);
+    pcea = new PositionChangeEventArgs();
+    pcea.moving = false;
+    PositionChange(pcea);
   }
 
 }

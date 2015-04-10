@@ -4,7 +4,8 @@ static class Grid {
   public static Board board;
   public static GameManager game;
   public static CharacterSelector selector;
-
+  public static Canvas canvas;
+  public static EntityBoardUI ui;
   // when the program launches, Grid will check that all the needed elements are in place
   // that's exactly what you do in the static constructor here:
   static Grid() {
@@ -18,6 +19,10 @@ static class Grid {
 
     g = safeFind("__Selector");
     selector = (CharacterSelector)SafeComponent(g, "CharacterSelector");
+
+    g = safeFind("__UI");
+    canvas = (Canvas)SafeComponent(g, "Canvas");
+    ui = (EntityBoardUI)SafeComponent(g, "EntityBoardUI");
 
     // PS. annoying arcane technical note - remember that really, in c# static constructors do not run
     // until the FIRST TIME YOU USE THEM.  almost certainly in any large project like this, Grid
