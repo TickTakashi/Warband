@@ -13,6 +13,6 @@ public class LightTotem : Totem {
     float spot_angle = Mathf.Atan(target_length / height) * (180f / Mathf.PI);
     spot_hq.spotAngle = spot_angle * 2f;
 
-    spot_hq.color = GameManager.player_colors[owner].SetSaturation(0.4f);
+    spot_hq.color = GameManager.player_colors[owner].SetSaturation(0.7f);
   }
 }

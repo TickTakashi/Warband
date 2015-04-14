@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using UEL;
 
-public class BasicAttackSkillUI : FollowEntity {
+public class BasicAttackSkillUI : WarriorAction {
 
   public BasicAttack attack;
 
@@ -11,30 +12,32 @@ public class BasicAttackSkillUI : FollowEntity {
   public Text range;
   public Text damage;
   public Text cost;
-
   public Button btn;
 
-  public Button range_indicator;
-
   public void Start() {
-    this.shape_icon.hits = attack.GetShape();
+    this.shape_icon.Init(attack.GetShape());
     this.skill_name.text = attack.skill_name;
-    this.range.text = "" + attack.range;
+    
+    if (attack.min_range == attack.max_range)
+      this.range.text = "" + attack.min_range;
+    else
+      this.range.text = "" + attack.min_range + "-" + attack.max_range;
+    
     this.damage.text = "" + attack.power;
-    this.cost.text = "" + attack.cost;
-
+    this.cost.text = "" + attack.cost + "TP";
   }
 
-  public void DisplayRange() {
-    // Instantiate range indicators
-      // Bind Attack peramters to range indicators.
+  public override void DisplayRange() {
+    TileDisplay(Color.red, attack.GetRange(), delegate(Location l) {
+      attack.StartCoroutine(attack.Use(l));
+    });
   }
 
-  // TODO: Create a bunch of range buttons based on the range of this skill
-  // these should FollowEntity (the same as the attack) but only get unhidden
-  // if the location in question is a legit target (not a hole, must be a tile.
-  
-  public override void SetVisibility(bool is_on) {
-    base.SetVisibility(is_on);
+  public override int Cost() {
+    return attack.cost;
+  }
+
+  public override bool Interactable() {
+    return base.Interactable() && !owner.casted;
   }
 }

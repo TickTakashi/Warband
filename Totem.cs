@@ -13,6 +13,14 @@ public class Totem : Entity {
      Trigger();
   }
 
+  public override void Die() {
+    Grid.board.RemoveEntity(this);
+
+    // TODO: Fade out the object instead of just deleting it.
+    
+    this.gameObject.SetActive(false); 
+  }
+
   // TODO: Convert Totem to an abstract class, and change this to an abstract.
   public virtual void Trigger() {}
 }

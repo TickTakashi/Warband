@@ -7,7 +7,7 @@ public abstract class Entity : UELBehaviour {
   public int health;
   public int max_health;
   public int owner;
-
+  public EntityCanvas ui;
   public Player player { get { return Grid.game.players[owner]; } }
   public Location location { get { return Grid.board.GetLocation(this); } }
 
@@ -35,20 +35,20 @@ public abstract class Entity : UELBehaviour {
     health -= value;
     HealthChangeEventArgs hcea = new HealthChangeEventArgs();
     hcea.delta = -value;
-    HealthChangeEvent(this, hcea);
+    if (HealthChangeEvent != null) {
+      HealthChangeEvent(this, hcea);
+    }
+    // TODO: Add Hurt Animations.
     if (health == 0)
       Die();
   }
 
-  public virtual void Die() {
-    // TODO: Implement Death.
-  }
+  public abstract void Die();
+
 
   public virtual void PositionChange(PositionChangeEventArgs e) {
     PositionChangeEvent(this, e);
   }
-
-
 }
 
 public class HealthChangeEventArgs : EventArgs {

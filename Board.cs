@@ -23,6 +23,9 @@ public class Board : UELBehaviour {
     return new Location(position.x / tile_size, position.z / tile_size);
   }
 
+
+
+
   public Location GetLocation(Entity e) {
     Warrior w = (Warrior)e;
     if (w != null)
@@ -43,12 +46,35 @@ public class Board : UELBehaviour {
     return board.ContainsKey(l) ? board[l] : null;
   }
 
+  public Tile GetTile(Vector3 pos) {
+    Location tile_loc = CalculateLocation(pos);
+    return GetTile(tile_loc);
+  }
   public void InitTile(Tile t) {
     Location l = CalculateLocation(t.transform.position);
     if (board.ContainsKey(l))
       throw new UnityException("Board - InitTile - Tile Initialized Twice!");
 
     board[l] = t;
+  }
+
+  public void RemoveEntity(Entity e) {
+    Location l = CalculateLocation(e.transform.position);
+    Warrior w = e as Warrior;
+    Totem t = e as Totem;
+
+    if (!(w != null && warriors.ContainsKey(w) || t != null && totems.ContainsKey(t)))
+      throw new UnityException("Board - RemoveEntity - Entity not present!");
+
+    if (t != null)
+      totems.Remove(t);
+    else
+      warriors.Remove(w);
+ 
+    if (!board.ContainsKey(l))
+      throw new UnityException("Board - RemoveEntity - No Tile To Stand On!");
+
+    board[l].occupant = null;
   }
 
   public void InitEntity(Entity e) {

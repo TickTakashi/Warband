@@ -3,7 +3,7 @@ using System.Collections;
 
 public class HumanPlayer : Player {
 
-  private bool turn = true;
+
   private Warrior selected;
 
   // TODO: Human players should control their units via normal input.
@@ -12,13 +12,10 @@ public class HumanPlayer : Player {
       yield return StartCoroutine(WaitForSelection());
       yield return StartCoroutine(WaitForCommandOrDeselection());
     }
-
-    turn = true;
   }
 
   public IEnumerator WaitForSelection() {
-    Debug.Log("Waiting for Selection.");
-    while (true) {
+    while (turn) {
       if (Input.GetButtonDown("Fire1")) {
         Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
         Debug.DrawLine(r.origin, r.origin + 10f * r.direction, Color.cyan);
@@ -30,8 +27,6 @@ public class HumanPlayer : Player {
             yield return null;
             break;
           }
-        } else {
-          Debug.Log("Raycast didn't hit anything.");
         }
       } 
       yield return null;
@@ -40,35 +35,28 @@ public class HumanPlayer : Player {
 
   public IEnumerator WaitForCommandOrDeselection() {
     // TODO: Wait for button press OR deselection by clicking somewhere else.
-    Debug.Log("Character Selected, Waiting for command...");
-    while (true) {
+    while (turn) {
       if (Input.GetButtonDown("Fire1") && !UnityEngine.EventSystems.
         EventSystem.current.IsPointerOverGameObject()) {
           ClearSelection();
-          Debug.Log("Clicked off: Deselecting...");
         break;
       }
       yield return null;
     }
   }
 
-  public void ClickEndTurn() {
-    turn = false;
-  }
 
   void UpdateSelection(Warrior sel) {
     ClearSelection();
-    this.selected = sel;
-
-    if (sel.player == Grid.game.Current()) {
-      Grid.ui.DisplayUIFor(sel, true);
-    }
+    selected = sel;
+    if (selected != null && selected.owner == Grid.game.current_player)
+      selected.DisplayUI(true);
   }
 
   void ClearSelection() {
-    if (this.selected != null)
-      Grid.ui.DisplayUIFor(this.selected, false);
+    if (selected != null)
+      selected.DisplayUI(false);
     
-    this.selected = null;
+    selected = null;
   }
 }

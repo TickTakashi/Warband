@@ -4,30 +4,26 @@ using UnityEngine.UI;
 using UEL;
 using System;
 
-public class HealthBarUI : FollowEntity {
+public class HealthBarUI : UELBehaviour {
   public Image bar_mask;
   public Image underlay;
   public Image bar;
-
+  public Entity entity;
   private Rect initial_dimensions;
 
   public void Awake() {
     initial_dimensions = bar_mask.rectTransform.rect;
-  }
-
-  public override void SetEntity(Entity e) {
-    base.SetEntity(e);
-    e.HealthChangeEvent += new EventHandler<HealthChangeEventArgs>(OnHealthChange);
-    bar.color = GameManager.player_colors[e.owner];
+    entity.HealthChangeEvent += new EventHandler<HealthChangeEventArgs>(OnHealthChange);
+    bar.color = GameManager.player_colors[entity.owner];
     SetValue();
   }
 
   private void OnHealthChange(object sender, HealthChangeEventArgs e) {
-    MaintainPosition();
+    SetValue();
   }
 
   public void SetValue() {
-    float percentage = (float)e.health / (float)e.max_health;
+    float percentage = (float)entity.health / (float)entity.max_health;
     if (percentage > 1 || percentage < 0) {
       throw new UnityException("HealthBar - SetValue - Health overflow!");
     }

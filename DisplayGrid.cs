@@ -19,6 +19,8 @@ public class DisplayGrid : MonoBehaviour {
 
   public Color mainColor = new Color(0f, 1f, 0f, 1f);
 
+  void Start() { }
+  
   void CreateLineMaterial() {
 
     if (!lineMaterial) {

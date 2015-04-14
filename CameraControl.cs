@@ -10,13 +10,13 @@ public class CameraControl : UELBehaviour {
   public Transform cam;
 
   public float move_speed = 15f;
-  public float threshold = 0.40f;
+  public float threshold = 0.10f;
   public float zoom_level = 0;
   public float zoom_scale = 10f;
   public float zoom_speed = 3f;
   public float zoom_max = 1f;
   public float min_speed_perc = 0.5f;
-
+  public bool can_control = true;
   private Transform trans;
   private Vector3 zoom_zero;
 
@@ -27,57 +27,70 @@ public class CameraControl : UELBehaviour {
   void Awake() {
     trans = transform;
     zoom_zero = cam.localPosition;
+    Vector3 target_pos = transform.TransformPoint(zoom_zero) + cam.forward *
+        zoom_level * zoom_scale;
+    cam.position = target_pos;
   }
 
 	void Update () {
-    // Handle translation  
-    Vector2 m_pos = Input.mousePosition;
-    Vector2 center = new Vector2(Screen.width / 2f, Screen.height / 2f);
-    Vector2 dir = (-center + m_pos);
-    float speed_percentage = (1 - zoom_level / zoom_max) * 
-      (1 - min_speed_perc) + min_speed_perc;
-    Vector3 translation = trans.forward * dir.y + trans.right * dir.x;
+    if (can_control) {
+      float vert_px_thresh = (Screen.height / 2f) - Screen.height * threshold;
+      float hori_px_thresh = (Screen.width / 2f) - Screen.height * threshold;
 
-    translation = translation.normalized;
+      // Handle translation  
+      Vector2 m_pos = Input.mousePosition;
+      Vector2 center = new Vector2(Screen.width / 2f, Screen.height / 2f);
+      Vector2 dir = (-center + m_pos);
+      float speed_perc = (1 - zoom_level / zoom_max) *
+        (1 - min_speed_perc) + min_speed_perc;
 
-    // TODO: Make the speed scaling more sophisticated.
-    if (Mathf.Abs(dir.x) > Screen.width / 2f ||
-      Mathf.Abs(dir.y) > Screen.height / 2f) {
-      dir = Vector2.zero;
-    }
 
-    float speed_scale = dir.magnitude / Screen.height;
-    speed_scale = speed_scale > threshold ? speed_scale : 0f;
+      // TODO: Make the speed scaling more sophisticated.
+      float abs_x = Mathf.Abs(dir.x);
+      float abs_y = Mathf.Abs(dir.y);
+      if (!((abs_x < Screen.width / 2f && abs_x > hori_px_thresh) ||
+        (abs_y < Screen.height / 2f && abs_y > vert_px_thresh))) {
+        dir = Vector2.zero;
+      }
 
-    trans.Translate(translation * Time.deltaTime * move_speed * speed_scale *
-      speed_percentage, Space.World);
+      Vector3 translation = trans.forward * dir.y + trans.right * dir.x;
+      translation = translation.normalized;
 
-    // Handle Zoom
-    zoom_level += Input.GetAxis("Mouse ScrollWheel");
-    
-    if (zoom_level < 0)
-      zoom_level = 0;
-    if (zoom_level > zoom_max)
-      zoom_level = zoom_max;
+      Vector3 final = translation * Time.deltaTime * move_speed * speed_perc;
+      if (Grid.board.GetTile(trans.position + final) != null) {
+        trans.Translate(final, Space.World);
+      }
 
-    Vector3 target_pos = transform.TransformPoint(zoom_zero) + cam.forward *
-      zoom_level * zoom_scale;
-    Vector3 delta = target_pos - cam.position;
-    cam.position = Vector3.Lerp(cam.position, target_pos, Time.deltaTime * zoom_speed);
+      // Handle Zoom
+      zoom_level += Input.GetAxis("Mouse ScrollWheel");
 
-    bool in_motion = speed_scale > threshold || delta.magnitude > 0.1f;
-    if (!moving && in_motion) {
-      moving = true;
-      CameraMovedEventArgs cmea = new CameraMovedEventArgs();
-      cmea.moving = moving;
-      CameraMovedEvent(this, cmea);
-    }
-    
-    if (moving && !in_motion) {
-      moving = false;
-      CameraMovedEventArgs cmea = new CameraMovedEventArgs();
-      cmea.moving = moving;
-      CameraMovedEvent(this, cmea);
+      if (zoom_level < 0)
+        zoom_level = 0;
+      if (zoom_level > zoom_max)
+        zoom_level = zoom_max;
+
+      Vector3 target_pos = transform.TransformPoint(zoom_zero) + cam.forward *
+        zoom_level * zoom_scale;
+      Vector3 delta = target_pos - cam.position;
+      cam.position = Vector3.Lerp(cam.position, target_pos, Time.deltaTime * zoom_speed);
+
+      bool in_motion = dir.magnitude > 0 || delta.magnitude > 0.1f;
+
+      if (in_motion) {
+        moving = true;
+        CameraMovedEventArgs cmea = new CameraMovedEventArgs();
+        cmea.moving = moving;
+        if (CameraMovedEvent != null)
+          CameraMovedEvent(this, cmea);
+      }
+
+      if (moving && !in_motion) {
+        moving = false;
+        CameraMovedEventArgs cmea = new CameraMovedEventArgs();
+        cmea.moving = moving;
+        if (CameraMovedEvent != null)
+          CameraMovedEvent(this, cmea);
+      }
     }
   }
 }

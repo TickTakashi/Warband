@@ -2,7 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public struct Location {
+[System.Serializable]
+public class Location {
   public int x;
   public int y;
 
@@ -45,10 +46,36 @@ public struct Location {
   }
 
   internal IEnumerable<Location> Range(int range) {
-    for (int i = -range; i <= range; i++) {
-      for (int j = -(range - Mathf.Abs(i)); j <= (range - Mathf.Abs(i)); j++) {
-        yield return new Location(x + i, y + j);
+    return Range(0, range);
+  }
+
+  internal IEnumerable<Location> Range(int min, int max) {
+    for (int i = -max; i <= max; i++) {
+      for (int j = -(max - Mathf.Abs(i)); j <= (max - Mathf.Abs(i)); j++) {
+        if (Mathf.Abs(i) + Mathf.Abs(j) >= min) {
+          yield return new Location(x + i, y + j);
+        }
       }
     } 
+  }
+
+  public override bool Equals(object obj) {
+    if (obj == null) {
+      return false;
+    }
+
+    Location p = obj as Location;
+    if ((System.Object)p == null) {
+      return false;
+    }
+
+    return (x == p.x) && (y == p.y);
+  }
+
+  public override int GetHashCode() {
+    int hash = 17;
+    hash = hash * 47 + x;
+    hash = hash * 47 + y;
+    return hash;
   }
 }
