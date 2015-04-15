@@ -23,33 +23,30 @@ public abstract class WarriorAction : UIElement {
 
   public void TileDisplay(Color col, IEnumerable<Location> locations, Action action) {
     owner.DisplayUI(false);
-    children.Clear();
     foreach (Location l in locations) {
       Tile target = Grid.board.GetTile(l);
       if (target != null) {
         TileButton select_button = target.UISelectButton();
+        children.Add(select_button);
         select_button.SetColour(col);
         Location tmp = l;
         select_button.SetFunction(() => {
-          ChildrenVisible(false);
           available = false;
           Spend();
           action(tmp);
         });
-        children.Add(select_button);
-        select_button.gameObject.SetActive(true);
       }
     }
   }
 
   public override void Visible(bool is_visible) {
-    if (is_visible) {
+    if (!is_visible) {
+      ChildrenVisible(is_visible);
       children.Clear();
     }
     canvas_group.alpha = is_visible ? 1f : 0f;
     canvas_group.blocksRaycasts = is_visible;
     canvas_group.interactable = is_visible && Interactable();
-    ChildrenVisible(is_visible);
   }
 
   public virtual bool Interactable() {

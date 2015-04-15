@@ -31,8 +31,10 @@ public class Tile : MonoBehaviour {
       uib.rtrans.localPosition = Vector3.up * transform.position.z *
         (1f / ui.localScale.y) + Vector3.right * transform.position.x *
         (1f / ui.localScale.x);
+      uib.name = Grid.board.CalculateLocation(transform.position).ToString();
     }
-
+    
+    uib.gameObject.SetActive(true);
     return uib;
   }
 }

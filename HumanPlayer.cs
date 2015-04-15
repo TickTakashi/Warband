@@ -2,20 +2,22 @@
 using System.Collections;
 
 public class HumanPlayer : Player {
-
-
   private Warrior selected;
 
   // TODO: Human players should control their units via normal input.
   public override IEnumerator TakeTurn() {
-    while (Grid.game.current_tp > 0 && turn) {
+    yield return StartCoroutine(Grid.game.FadeUI(true));
+    Grid.camera.can_control = true;
+    while (turn && !captain.IsDead()) {
       yield return StartCoroutine(WaitForSelection());
       yield return StartCoroutine(WaitForCommandOrDeselection());
     }
+    Grid.camera.can_control = false;
+    yield return StartCoroutine(Grid.game.FadeUI(false));
   }
 
   public IEnumerator WaitForSelection() {
-    while (turn) {
+    while (turn && !captain.IsDead()) {
       if (Input.GetButtonDown("Fire1")) {
         Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
         Debug.DrawLine(r.origin, r.origin + 10f * r.direction, Color.cyan);
@@ -35,7 +37,7 @@ public class HumanPlayer : Player {
 
   public IEnumerator WaitForCommandOrDeselection() {
     // TODO: Wait for button press OR deselection by clicking somewhere else.
-    while (turn) {
+    while (turn && !captain.IsDead()) {
       if (Input.GetButtonDown("Fire1") && !UnityEngine.EventSystems.
         EventSystem.current.IsPointerOverGameObject()) {
           ClearSelection();
@@ -47,10 +49,12 @@ public class HumanPlayer : Player {
 
 
   void UpdateSelection(Warrior sel) {
-    ClearSelection();
-    selected = sel;
-    if (selected != null && selected.owner == Grid.game.current_player)
-      selected.DisplayUI(true);
+    if (sel != selected) {
+      ClearSelection();
+      selected = sel;
+      if (selected != null && selected.owner == Grid.game.current_player)
+        selected.DisplayUI(true);
+    }
   }
 
   void ClearSelection() {

@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UEL;
 
-public abstract class Player : MonoBehaviour {
+public abstract class Player : UELBehaviour {
   // TODO: A Player needs a deck, a hand, and possibly some other parameters
   // like max hand size. Players will probably also need to know about all 
   // their owned units.
@@ -27,6 +28,13 @@ public abstract class Player : MonoBehaviour {
     turn = true;
   }
 
-  
+  public List<Warrior> MyWarriors() {
+    List<Warrior> warriors = new List<Warrior>(Grid.board.warriors.Keys);
+    warriors = warriors.FindAll(delegate(Warrior w) {
+      return !w.IsDead() && w.player == this;
+    });
+    return warriors;
+  }
+
   public abstract IEnumerator TakeTurn();
 }

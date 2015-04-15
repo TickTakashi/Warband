@@ -82,7 +82,7 @@ public class Warrior : Entity {
         timer += Time.deltaTime;
         trans.rotation = Quaternion.RotateTowards(trans.rotation, target,
           Time.deltaTime * rot_speed);
-        NotifyPositionChange(true);
+        //NotifyPositionChange(true);
         yield return null;
       }
     }
@@ -102,7 +102,7 @@ public class Warrior : Entity {
     while (Quaternion.Angle(trans.rotation, target_rotation) > EPSILLON) {
       trans.rotation = Quaternion.RotateTowards(trans.rotation, target_rotation,
         Time.deltaTime * rot_speed);
-      NotifyPositionChange(true);
+      //NotifyPositionChange(true);
       yield return null;
     }
     anim.SetBool(anim_bool_move, false);

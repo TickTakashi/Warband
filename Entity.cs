@@ -43,6 +43,10 @@ public abstract class Entity : UELBehaviour {
       Die();
   }
 
+  public bool IsDead() {
+    return health == 0;
+  }
+
   public abstract void Die();
 
 

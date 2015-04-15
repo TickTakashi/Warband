@@ -16,15 +16,15 @@ public class Board : UELBehaviour {
 
 
   public Vector3 CalculatePosition(Location l) {
-    return board[l].transform.position;
+    if (board.ContainsKey(l))
+      return board[l].transform.position;
+    else
+      return new Vector3(l.x * tile_size, l.y * tile_size);
   }
 
   public Location CalculateLocation(Vector3 position) {
     return new Location(position.x / tile_size, position.z / tile_size);
   }
-
-
-
 
   public Location GetLocation(Entity e) {
     Warrior w = (Warrior)e;
@@ -50,6 +50,7 @@ public class Board : UELBehaviour {
     Location tile_loc = CalculateLocation(pos);
     return GetTile(tile_loc);
   }
+
   public void InitTile(Tile t) {
     Location l = CalculateLocation(t.transform.position);
     if (board.ContainsKey(l))

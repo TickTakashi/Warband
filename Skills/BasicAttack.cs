@@ -60,6 +60,21 @@ public class BasicAttack : Skill {
   }
 
   public virtual IEnumerable<Location> GetRange() {
-    return owner.location.Range(min_range, max_range);
+    return GetRange(owner);
+  }
+
+  public virtual IEnumerable<Location> GetRange(Entity e) {
+    return e.location.Range(min_range, max_range);
+  }
+
+  // From loc, you can hit A by casting at B
+  public virtual HashSet<Pair<Location, Location>> Hittable(Location loc) {
+    HashSet<Pair<Location, Location>> hits = new HashSet<Pair<Location, Location>>();
+    foreach (Location l in loc.Range(min_range, max_range)) {
+      foreach (Location s in GetShape()) {
+        hits.Add(new Pair<Location, Location>(l + s, l));
+      }
+    }
+    return hits;
   }
 }

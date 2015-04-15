@@ -57,9 +57,34 @@ public class CameraControl : UELBehaviour {
       translation = translation.normalized;
 
       Vector3 final = translation * Time.deltaTime * move_speed * speed_perc;
-      if (Grid.board.GetTile(trans.position + final) != null) {
-        trans.Translate(final, Space.World);
+      if (Grid.board.GetTile(trans.position + final) == null) {
+        Location old_loc = Grid.board.CalculateLocation(trans.position);
+        Vector3 old_pos = Grid.board.CalculatePosition(old_loc);
+        
+        Location best = old_loc;
+        float min = float.MaxValue;
+        foreach (Location l in old_loc.Range(1, 1)) {
+          Tile t = Grid.board.GetTile(l);
+          if (t != null) {
+            float dist = Vector3.Angle((-old_pos + t.transform.position).normalized,
+              final);
+            if (dist < min) {
+              best = l;
+              min = dist;
+            }
+          }
+        }
+
+        if (min < 90f) {
+          Vector3 edge_dir = (-old_pos + Grid.board.CalculatePosition(best)).normalized;
+          final = edge_dir * Time.deltaTime * move_speed * speed_perc;
+        } else {
+          final = Vector3.zero;
+        }
       }
+
+      trans.Translate(final, Space.World);
+      
 
       // Handle Zoom
       zoom_level += Input.GetAxis("Mouse ScrollWheel");

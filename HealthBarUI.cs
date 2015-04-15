@@ -14,8 +14,13 @@ public class HealthBarUI : UELBehaviour {
   public void Awake() {
     initial_dimensions = bar_mask.rectTransform.rect;
     entity.HealthChangeEvent += new EventHandler<HealthChangeEventArgs>(OnHealthChange);
+    entity.PositionChangeEvent += new EventHandler<PositionChangeEventArgs>(OnPositionChange);
     bar.color = GameManager.player_colors[entity.owner];
     SetValue();
+  }
+
+  private void OnPositionChange(object sender, PositionChangeEventArgs e) {
+    this.gameObject.SetActive(!e.moving);
   }
 
   private void OnHealthChange(object sender, HealthChangeEventArgs e) {
